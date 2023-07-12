@@ -1,15 +1,14 @@
 package kia.jkid.deserialization
 
-import kia.jkid.asJavaClass
 import kia.jkid.isPrimitiveOrString
 import kia.jkid.serializerForBasicType
 import java.io.Reader
 import java.io.StringReader
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.javaType
+import kotlin.reflect.KType
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.starProjectedType
 
 inline fun <reified T: Any> deserialize(json: String): T {
     return deserialize(StringReader(json))
@@ -45,22 +44,29 @@ interface Seed: JsonObject {
     override fun createArray(propertyName: String) = createCompositeProperty(propertyName, true)
 }
 
-fun Seed.createSeedForType(paramType: Type, isList: Boolean): Seed {
-    val paramClass = paramType.asJavaClass()
+private fun isSubtypeOfList(type: KType): Boolean {
+    val listType: KType = List::class.starProjectedType
+    return type.isSubtypeOf(listType)
+}
 
-    if (List::class.java.isAssignableFrom(paramClass)) {
+private fun getParameterizedType(type: KType): KType {
+    return type.arguments.single().type!!
+}
+
+fun Seed.createSeedForType(paramType: KType, isList: Boolean): Seed {
+    val paramClass = paramType.classifier as KClass<out Any>
+    if (isSubtypeOfList(paramType)) {
+        println("It's a list!")
         if (!isList) throw JKidException("An array expected, not a composite object")
-        val parameterizedType = paramType as? ParameterizedType
-                ?: throw UnsupportedOperationException("Unsupported parameter type $this")
 
-        val elementType = parameterizedType.actualTypeArguments.single()
+        val elementType = getParameterizedType(paramType)
         if (elementType.isPrimitiveOrString()) {
             return ValueListSeed(elementType, classInfoCache)
         }
         return ObjectListSeed(elementType, classInfoCache)
     }
-    if (isList) throw JKidException("Object of the type ${paramType.typeName} expected, not an array")
-    return ObjectSeed(paramClass.kotlin, classInfoCache)
+    if (isList) throw JKidException("Object of the type $paramType expected, not an array")
+    return ObjectSeed(paramClass, classInfoCache)
 }
 
 
@@ -84,9 +90,10 @@ class ObjectSeed<out T: Any>(
 
     override fun createCompositeProperty(propertyName: String, isList: Boolean): Seed {
         val param = classInfo.getConstructorParameter(propertyName)
-        val deserializeAs = classInfo.getDeserializeClass(propertyName)
+        val deserializeAs = classInfo.getDeserializeClass(propertyName)?.starProjectedType
         val seed = createSeedForType(
-                deserializeAs ?: param.type.javaType, isList)
+            deserializeAs ?: param.type, isList
+        )
         return seed.apply { seedArguments[param] = this }
     }
 
@@ -94,7 +101,7 @@ class ObjectSeed<out T: Any>(
 }
 
 class ObjectListSeed(
-        val elementType: Type,
+    val elementType: KType,
         override val classInfoCache: ClassInfoCache
 ) : Seed {
     private val elements = mutableListOf<Seed>()
@@ -110,7 +117,7 @@ class ObjectListSeed(
 }
 
 class ValueListSeed(
-        elementType: Type,
+    elementType: KType,
         override val classInfoCache: ClassInfoCache
 ) : Seed {
     private val elements = mutableListOf<Any?>()

@@ -1,23 +1,25 @@
 package kia.jkid
 
 import kia.jkid.deserialization.JKidException
-import java.lang.reflect.Type
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
-fun serializerForBasicType(type: Type): ValueSerializer<out Any?> {
-    assert(type.isPrimitiveOrString()) { "Expected primitive type or String: ${type.typeName}" }
+fun serializerForBasicType(type: KType): ValueSerializer<out Any?> {
+    assert(type.isPrimitiveOrString()) { "Expected primitive type or String: $type" }
     return serializerForType(type)!!
 }
 
-fun serializerForType(type: Type): ValueSerializer<out Any?>? =
+fun serializerForType(type: KType): ValueSerializer<out Any?>? =
         when (type) {
-            Byte::class.java, Byte::class.javaObjectType -> ByteSerializer
-            Short::class.java, Short::class.javaObjectType -> ShortSerializer
-            Int::class.java, Int::class.javaObjectType -> IntSerializer
-            Long::class.java, Long::class.javaObjectType -> LongSerializer
-            Float::class.java, Float::class.javaObjectType -> FloatSerializer
-            Double::class.java, Double::class.javaObjectType -> DoubleSerializer
-            Boolean::class.java, Boolean::class.javaObjectType -> BooleanSerializer
-            String::class.java -> StringSerializer
+            typeOf<Byte>() -> ByteSerializer
+            typeOf<Short>() -> ShortSerializer
+            typeOf<Int>() -> IntSerializer
+            typeOf<Long>() -> LongSerializer
+            typeOf<Float>() -> FloatSerializer
+            typeOf<Double>() -> DoubleSerializer
+            typeOf<Boolean>() -> BooleanSerializer
+            typeOf<String>(),
+            typeOf<String?>() -> StringSerializer
             else -> null
         }
 
