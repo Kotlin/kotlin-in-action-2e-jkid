@@ -4,18 +4,19 @@ import kia.jkid.CustomSerializer
 import kia.jkid.JsonExclude
 import kia.jkid.JsonName
 import kia.jkid.ValueSerializer
-import kia.jkid.createInstance
-import kia.jkid.findAnnotation
 import kia.jkid.joinToStringBuilder
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
 fun serialize(obj: Any): String = buildString { serializeObject(obj) }
 
 /* the first implementation discussed in the book */
 private fun StringBuilder.serializeObjectWithoutAnnotation(obj: Any) {
-    val kClass = obj.javaClass.kotlin
+    val kClass = obj::class as KClass<Any>
     val properties = kClass.memberProperties
 
     properties.joinToStringBuilder(this, prefix = "{", postfix = "}") { prop ->
@@ -26,15 +27,16 @@ private fun StringBuilder.serializeObjectWithoutAnnotation(obj: Any) {
 }
 
 private fun StringBuilder.serializeObject(obj: Any) {
-    obj.javaClass.kotlin.memberProperties
-            .filter { it.findAnnotation<JsonExclude>() == null }
-            .joinToStringBuilder(this, prefix = "{", postfix = "}") {
-                serializeProperty(it, obj)
-            }
+    (obj::class as KClass<Any>)
+        .memberProperties
+        .filter { it.findAnnotation<JsonExclude>() == null }
+        .joinToStringBuilder(this, prefix = "{", postfix = "}") {
+            serializeProperty(it, obj)
+        }
 }
 
 private fun StringBuilder.serializeProperty(
-        prop: KProperty1<Any, *>, obj: Any
+    prop: KProperty1<Any, *>, obj: Any
 ) {
     val jsonNameAnn = prop.findAnnotation<JsonName>()
     val propName = jsonNameAnn?.name ?: prop.name
@@ -51,7 +53,7 @@ fun KProperty<*>.getSerializer(): ValueSerializer<Any?>? {
     val serializerClass = customSerializerAnn.serializerClass
 
     val valueSerializer = serializerClass.objectInstance
-            ?: serializerClass.createInstance()
+        ?: serializerClass.createInstance()
     @Suppress("UNCHECKED_CAST")
     return valueSerializer as ValueSerializer<Any?>
 }
@@ -79,13 +81,13 @@ private fun StringBuilder.serializeString(s: String) {
 }
 
 private fun Char.escape(): Any =
-        when (this) {
-            '\\' -> "\\\\"
-            '\"' -> "\\\""
-            '\b' -> "\\b"
-            '\u000C' -> "\\f"
-            '\n' -> "\\n"
-            '\r' -> "\\r"
-            '\t' -> "\\t"
-            else -> this
-        }
+    when (this) {
+        '\\' -> "\\\\"
+        '\"' -> "\\\""
+        '\b' -> "\\b"
+        '\u000C' -> "\\f"
+        '\n' -> "\\n"
+        '\r' -> "\\r"
+        '\t' -> "\\t"
+        else -> this
+    }

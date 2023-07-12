@@ -5,18 +5,6 @@ import java.lang.reflect.Type
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 
-inline fun <reified T> KAnnotatedElement.findAnnotation(): T?
-        = annotations.filterIsInstance<T>().firstOrNull()
-
-internal fun <T : Any> KClass<T>.createInstance(): T {
-    val noArgConstructor = constructors.find {
-        it.parameters.isEmpty()
-    }
-    noArgConstructor ?: throw IllegalArgumentException(
-            "Class must have a no-argument constructor")
-
-    return noArgConstructor.call()
-}
 
 fun Type.asJavaClass(): Class<Any> = when (this) {
     is Class<*> -> this as Class<Any>

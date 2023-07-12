@@ -3,12 +3,12 @@ package kia.jkid.deserialization
 import kia.jkid.DeserializeInterface
 import kia.jkid.JsonName
 import kia.jkid.ValueSerializer
-import kia.jkid.findAnnotation
 import kia.jkid.serializerForType
 import kia.jkid.serialization.getSerializer
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaType
 

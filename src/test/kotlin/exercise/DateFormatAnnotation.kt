@@ -5,7 +5,7 @@ import kia.jkid.exercise.DateFormat
 import kia.jkid.deserialization.deserialize
 import kia.jkid.serialization.serialize
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
