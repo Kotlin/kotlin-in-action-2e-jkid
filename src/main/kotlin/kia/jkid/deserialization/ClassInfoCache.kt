@@ -3,8 +3,8 @@ package kia.jkid.deserialization
 import kia.jkid.DeserializeInterface
 import kia.jkid.JsonName
 import kia.jkid.ValueSerializer
-import kia.jkid.serializerForType
 import kia.jkid.serialization.getSerializer
+import kia.jkid.serializerForType
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.declaredMemberProperties
@@ -27,7 +27,7 @@ class ClassInfo<T : Any>(cls: KClass<T>) {
 
     private val jsonNameToParamMap = hashMapOf<String, KParameter>()
     private val paramToSerializerMap = hashMapOf<KParameter, ValueSerializer<out Any?>>()
-    private val jsonNameToDeserializeClassMap = hashMapOf<String, Class<out Any>?>()
+    private val jsonNameToDeserializeClassMap = hashMapOf<String, KClass<out Any>?>()
 
     init {
         constructor.parameters.forEach { cacheDataForParameter(cls, it) }
@@ -41,11 +41,11 @@ class ClassInfo<T : Any>(cls: KClass<T>) {
         val name = property.findAnnotation<JsonName>()?.name ?: paramName
         jsonNameToParamMap[name] = param
 
-        val deserializeClass = property.findAnnotation<DeserializeInterface>()?.targetClass?.java
+        val deserializeClass = property.findAnnotation<DeserializeInterface>()?.targetClass
         jsonNameToDeserializeClassMap[name] = deserializeClass
 
         val valueSerializer = property.getSerializer()
-                ?: serializerForType(param.type.javaType)
+            ?: serializerForType(param.type)
                 ?: return
         paramToSerializerMap[param] = valueSerializer
     }
@@ -64,6 +64,7 @@ class ClassInfo<T : Any>(cls: KClass<T>) {
     }
 
     private fun validateArgumentType(param: KParameter, value: Any?) {
+        println("Validating $param with value $value")
         if (value == null && !param.type.isMarkedNullable) {
             throw JKidException("Received null value for non-null parameter ${param.name}")
         }
