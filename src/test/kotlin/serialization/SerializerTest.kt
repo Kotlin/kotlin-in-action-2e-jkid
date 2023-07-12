@@ -1,8 +1,7 @@
-package ru.yole.jkid.serialization
+package kia.jkid.serialization
 
-import kia.jkid.serialization.serialize
+import kia.jkid.deserialization.*
 import kotlin.test.Test
-import ru.yole.jkid.deserialization.*
 import kotlin.test.assertEquals
 
 class SerializerTest {

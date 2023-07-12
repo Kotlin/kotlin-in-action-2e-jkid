@@ -1,8 +1,8 @@
 package examples
 
-import kotlin.test.Test
 import kia.jkid.DeserializeInterface
-import ru.yole.jkid.examples.jsonSerializerTest.testJsonSerializer
+import kia.jkid.examples.jsonSerializerTest.testJsonSerializer
+import kotlin.test.Test
 
 interface Company {
     val name: String

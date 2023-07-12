@@ -1,7 +1,7 @@
-package ru.yole.jkid.examples.innerObjectTest
+package kia.jkid.examples.innerObjectTest
 
+import kia.jkid.examples.jsonSerializerTest.testJsonSerializer
 import kotlin.test.Test
-import ru.yole.jkid.examples.jsonSerializerTest.testJsonSerializer
 
 data class Author(val fullName: String)
 data class Book(val name: String, val authors: List<Author>)

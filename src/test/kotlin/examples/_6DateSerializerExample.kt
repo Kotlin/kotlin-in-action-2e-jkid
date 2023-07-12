@@ -1,11 +1,11 @@
-package ru.yole.jkid.examples.customSerializerTest
+package kia.jkid.examples.customSerializerTest
 
-import kotlin.test.Test
 import kia.jkid.CustomSerializer
 import kia.jkid.ValueSerializer
-import ru.yole.jkid.examples.jsonSerializerTest.testJsonSerializer
+import kia.jkid.examples.jsonSerializerTest.testJsonSerializer
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.test.Test
 
 object DateSerializer : ValueSerializer<Date> {
     private val dateFormat = SimpleDateFormat("dd-mm-yyyy")

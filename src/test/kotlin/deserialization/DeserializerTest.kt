@@ -1,8 +1,6 @@
-package ru.yole.jkid.deserialization
+package kia.jkid.deserialization
 
 import kia.jkid.*
-import kia.jkid.deserialization.JKidException
-import kia.jkid.deserialization.deserialize
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -139,7 +137,7 @@ class NumberSerializer: ValueSerializer<Int> {
         else -> throw JKidException("Unexpected value $jsonValue")
     }
 
-    override fun toJsonValue(value: Int): Any? = when(value) {
+    override fun toJsonValue(value: Int): Any = when (value) {
         0 -> "ZERO"
         1 -> "ONE"
         else -> "?"
@@ -149,7 +147,7 @@ class NumberSerializer: ValueSerializer<Int> {
 data class SingleCustomSerializedProp(@CustomSerializer(NumberSerializer::class) val x: Int)
 
 object TimestampSerializer : ValueSerializer<Date> {
-    override fun toJsonValue(value: Date): Any? = value.time
+    override fun toJsonValue(value: Date): Any = value.time
 
     override fun fromJsonValue(jsonValue: Any?): Date
             = Date((jsonValue as Number).toLong())

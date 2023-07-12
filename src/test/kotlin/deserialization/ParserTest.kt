@@ -1,9 +1,6 @@
-package ru.yole.jkid.deserialization
+package kia.jkid.deserialization
 
-import kia.jkid.deserialization.JsonObject
-import kia.jkid.deserialization.MalformedJSONException
-import kia.jkid.deserialization.Parser
-import ru.yole.jkid.deserialization.ParserTest.JsonParserAction.*
+import kia.jkid.deserialization.ParserTest.JsonParserAction.*
 import java.io.StringReader
 import kotlin.test.Test
 import kotlin.test.assertEquals

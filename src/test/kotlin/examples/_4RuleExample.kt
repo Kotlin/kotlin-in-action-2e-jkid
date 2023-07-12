@@ -1,12 +1,12 @@
-package ru.yole.jkid.examples.rule
+package kia.jkid.examples.rule
 
-import org.junit.jupiter.api.io.TempDir
-import kotlin.test.Test
 import kia.jkid.serialization.serialize
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 data class Person(val name: String, val age: Int)

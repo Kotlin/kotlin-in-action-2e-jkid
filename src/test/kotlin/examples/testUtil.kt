@@ -1,4 +1,4 @@
-package ru.yole.jkid.examples.jsonSerializerTest
+package kia.jkid.examples.jsonSerializerTest
 
 import kia.jkid.deserialization.deserialize
 import kia.jkid.serialization.serialize

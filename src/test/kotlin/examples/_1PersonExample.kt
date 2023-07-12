@@ -1,4 +1,4 @@
-package ru.yole.jkid.examples.simple
+package kia.jkid.examples.simple
 
 import kia.jkid.deserialization.deserialize
 import kia.jkid.serialization.serialize

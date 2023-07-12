@@ -1,8 +1,5 @@
-package ru.yole.jkid.deserialization
+package kia.jkid.deserialization
 
-import kia.jkid.deserialization.Lexer
-import kia.jkid.deserialization.MalformedJSONException
-import kia.jkid.deserialization.Token
 import java.io.StringReader
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,12 +1,11 @@
-package ru.yole.jkid.exercise
+package kia.jkid.exercise
 
-import kotlin.test.Test
-import kia.jkid.exercise.DateFormat
 import kia.jkid.deserialization.deserialize
 import kia.jkid.serialization.serialize
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 import kotlin.test.Ignore
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 data class Person(
