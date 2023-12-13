@@ -1,4 +1,4 @@
-# Kotlin in Action 2e: JKid Implementation
+# Kotlin in Action 2e: JKid Implementation [![JetBrains team project](https://jb.gg/badges/team-flat-square.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) 
 
 > **Note**
 > This project accompanies Chapter 12, "Introspecting Kotlin Code" of the [Kotlin in Action](https://kotl.in/in-action)
