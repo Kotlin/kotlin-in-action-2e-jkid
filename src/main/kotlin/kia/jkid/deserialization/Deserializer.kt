@@ -118,7 +118,7 @@ class ObjectListSeed(
 
 class ValueListSeed(
     elementType: KType,
-        override val classInfoCache: ClassInfoCache
+    override val classInfoCache: ClassInfoCache
 ) : Seed {
     private val elements = mutableListOf<Any?>()
     private val serializerForType = serializerForBasicType(elementType)

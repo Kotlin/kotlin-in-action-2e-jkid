@@ -6,6 +6,7 @@ import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.typeOf
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -83,14 +84,25 @@ object StringSerializer : ValueSerializer<String?> {
     override fun toJsonValue(value: String?) = value
 }
 
-class DateSerializer(private val annotatedElement: KAnnotatedElement? = null) : ValueSerializer<Date> {
+class DateSerializer(annotatedElement: KAnnotatedElement? = null) : ValueSerializer<Date> {
+
+    private val dateFormat = SimpleDateFormat(
+        annotatedElement?.findAnnotation<DateFormat>()?.format
+            ?: "yyyy-MM-dd"
+    )
 
     override fun fromJsonValue(jsonValue: Any?): Date {
-        TODO("Not yet implemented")
+        if (jsonValue == null) throw JKidException("Cannot deserialize date from 'null'")
+        if (jsonValue !is String) throw JKidException("Expected a string-serialized date, but was: $jsonValue")
+
+        return try {
+            dateFormat.parse(jsonValue)
+        } catch (e: ParseException) {
+            throw JKidException("Something went wrong while parsing date $jsonValue: ${e.message}")
+        }
     }
 
     override fun toJsonValue(value: Date): Any? {
-        val dateFormat = annotatedElement?.findAnnotation<DateFormat>()?.format ?: "yyyy-MM-dd"
-        return SimpleDateFormat(dateFormat).format(value)
+        return dateFormat.format(value)
     }
 }
