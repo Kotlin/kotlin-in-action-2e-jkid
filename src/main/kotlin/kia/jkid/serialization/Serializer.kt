@@ -5,6 +5,7 @@ import kia.jkid.JsonExclude
 import kia.jkid.JsonName
 import kia.jkid.ValueSerializer
 import kia.jkid.joinToStringBuilder
+import kia.jkid.serializerForType
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -44,7 +45,7 @@ private fun StringBuilder.serializeProperty(
     append(": ")
 
     val value = prop.get(obj)
-    val propertySerializer = prop.getCustomSerializer()
+    val propertySerializer = prop.getCustomSerializer() ?: serializerForType(prop.returnType, prop)
     val jsonValue = propertySerializer?.toJsonValue(value) ?: value
     serializePropertyValue(jsonValue)
 }
@@ -54,6 +55,16 @@ fun KProperty<*>.getCustomSerializer(): ValueSerializer<Any?>? {
     val serializerClass = customSerializerAnn.serializerClass
 
     val valueSerializer = serializerClass.objectInstance
+        ?: serializerClass.constructors.firstOrNull()?.let {
+            check(it.parameters.size <= 1) { "Only ValueSerializer implementation accepting 0 or 1 constructor parameter are supported" }
+
+            val constructorParam = it.parameters.firstOrNull()?.to(this)?.let { entry -> mapOf(entry) }
+
+            if (constructorParam != null) {
+                it.callBy(constructorParam)
+            }
+            else null
+        }
         ?: serializerClass.createInstance()
     @Suppress("UNCHECKED_CAST")
     return valueSerializer as ValueSerializer<Any?>
