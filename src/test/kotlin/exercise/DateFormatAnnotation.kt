@@ -1,9 +1,11 @@
 package kia.jkid.exercise
 
+import kia.jkid.deserialization.JKidException
 import kia.jkid.deserialization.deserialize
 import kia.jkid.serialization.serialize
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.assertThrows
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -27,5 +29,19 @@ class DateFormatTest {
 
     @Test fun testDeserialization() {
         assertEquals(value, deserialize(json))
+    }
+
+    @Test fun testDeserializationNullProperty() {
+        val json = """{"birthDate": null, "name": "Alice"}"""
+        assertThrows<JKidException> {
+            assertEquals(value, deserialize(json))
+        }
+    }
+
+    @Test fun testDeserializationWrongTypeProperty() {
+        val json = """{"birthDate": 10, "name": "Alice"}"""
+        assertThrows<JKidException> {
+            assertEquals(value, deserialize(json))
+        }
     }
 }
