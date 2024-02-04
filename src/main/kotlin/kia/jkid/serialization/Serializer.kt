@@ -44,11 +44,12 @@ private fun StringBuilder.serializeProperty(
     append(": ")
 
     val value = prop.get(obj)
-    val jsonValue = prop.getSerializer()?.toJsonValue(value) ?: value
+    val propertySerializer = prop.getCustomSerializer()
+    val jsonValue = propertySerializer?.toJsonValue(value) ?: value
     serializePropertyValue(jsonValue)
 }
 
-fun KProperty<*>.getSerializer(): ValueSerializer<Any?>? {
+fun KProperty<*>.getCustomSerializer(): ValueSerializer<Any?>? {
     val customSerializerAnn = findAnnotation<CustomSerializer>() ?: return null
     val serializerClass = customSerializerAnn.serializerClass
 

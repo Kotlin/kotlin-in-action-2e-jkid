@@ -3,7 +3,7 @@ package kia.jkid.deserialization
 import kia.jkid.DeserializeInterface
 import kia.jkid.JsonName
 import kia.jkid.ValueSerializer
-import kia.jkid.serialization.getSerializer
+import kia.jkid.serialization.getCustomSerializer
 import kia.jkid.serializerForType
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -44,8 +44,8 @@ class ClassInfo<T : Any>(cls: KClass<T>) {
         val deserializeClass = property.findAnnotation<DeserializeInterface>()?.targetClass
         jsonNameToDeserializeClassMap[name] = deserializeClass
 
-        val valueSerializer = property.getSerializer()
-            ?: serializerForType(param.type)
+        val valueSerializer = property.getCustomSerializer()
+            ?: serializerForType(param.type, param)
                 ?: return
         paramToSerializerMap[param] = valueSerializer
     }
