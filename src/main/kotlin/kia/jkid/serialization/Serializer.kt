@@ -54,21 +54,23 @@ fun KProperty<*>.getCustomSerializer(): ValueSerializer<Any?>? {
     val customSerializerAnn = findAnnotation<CustomSerializer>() ?: return null
     val serializerClass = customSerializerAnn.serializerClass
 
-    val valueSerializer = serializerClass.objectInstance
-        ?: serializerClass.constructors.firstOrNull()?.let {
-            check(it.parameters.size <= 1) { "Only ValueSerializer implementation accepting 0 or 1 constructor parameter are supported" }
-
-            val constructorParam = it.parameters.firstOrNull()?.to(this)?.let { entry -> mapOf(entry) }
-
-            if (constructorParam != null) {
-                it.callBy(constructorParam)
-            }
-            else null
-        }
-        ?: serializerClass.createInstance()
+    val valueSerializer = serializerClass.objectInstance ?: serializerClass.createClassInstance()
     @Suppress("UNCHECKED_CAST")
     return valueSerializer as ValueSerializer<Any?>
 }
+
+// Create an instance of a class implementing [ValueSerializer]. The class to be instantiated is expected to be a
+// class with a constructor accepting [KAnnotatedElement] or a class with no-param constructor.
+private fun KClass<*>.createClassInstance() = constructors.firstOrNull()?.let {
+    check(it.parameters.size <= 1) { "Only ValueSerializer implementation accepting 0 or 1 constructor parameter are supported" }
+
+    val constructorParam = it.parameters.firstOrNull()?.to(this)?.let { entry -> mapOf(entry) }
+
+    if (constructorParam != null) {
+        it.callBy(constructorParam)
+    }
+    else null
+} ?: createInstance()
 
 private fun StringBuilder.serializePropertyValue(value: Any?) {
     when (value) {
