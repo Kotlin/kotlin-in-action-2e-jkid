@@ -4,6 +4,7 @@ import kia.jkid.CustomSerializer
 import kia.jkid.JsonExclude
 import kia.jkid.JsonName
 import kia.jkid.ValueSerializer
+import kia.jkid.deserialization.JKidException
 import kia.jkid.joinToStringBuilder
 import kia.jkid.serializerForType
 import kotlin.reflect.KClass
@@ -78,6 +79,7 @@ private fun StringBuilder.serializePropertyValue(value: Any?) {
         is String -> serializeString(value)
         is Number, is Boolean -> append(value.toString())
         is List<*> -> serializeList(value)
+        is Map<*, *> -> serializeMap(value)
         else -> serializeObject(value)
     }
 }
@@ -86,6 +88,21 @@ private fun StringBuilder.serializeList(data: List<Any?>) {
     data.joinToStringBuilder(this, prefix = "[", postfix = "]") {
         serializePropertyValue(it)
     }
+}
+
+private fun StringBuilder.serializeMap(data: Map<*, *>) {
+    append("{")
+    data.keys.forEachIndexed { index, key ->
+        if (key == null) return@forEachIndexed
+        if (key !is String) throw JKidException("Cannot serialize a Map with non-string keys")
+
+        serializeString(key)
+        append(": ")
+        serializePropertyValue(data[key])
+
+        if (index < data.keys.size - 1) append(", ")
+    }
+    append("}")
 }
 
 private fun StringBuilder.serializeString(s: String) {
