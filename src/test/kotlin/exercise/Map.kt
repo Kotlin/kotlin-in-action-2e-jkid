@@ -2,7 +2,6 @@ package exercise
 
 import kia.jkid.deserialization.deserialize
 import kia.jkid.serialization.serialize
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -17,7 +16,6 @@ class MapTest {
         assertEquals(json, serialize(bookStore))
     }
 
-    @Ignore
     @Test fun testDeserialization() {
         assertEquals(bookStore, deserialize(json))
     }

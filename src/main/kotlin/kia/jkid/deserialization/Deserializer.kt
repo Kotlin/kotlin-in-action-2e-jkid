@@ -2,13 +2,13 @@ package kia.jkid.deserialization
 
 import kia.jkid.isPrimitiveOrString
 import kia.jkid.serializerForBasicType
-import java.io.Reader
-import java.io.StringReader
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
+import java.io.Reader
+import java.io.StringReader
 
 inline fun <reified T: Any> deserialize(json: String): T {
     return deserialize(StringReader(json))
@@ -49,6 +49,11 @@ private fun isSubtypeOfList(type: KType): Boolean {
     return type.isSubtypeOf(listType)
 }
 
+private fun isSubtypeOfMap(type: KType): Boolean {
+    val listType: KType = Map::class.starProjectedType
+    return type.isSubtypeOf(listType)
+}
+
 private fun getParameterizedType(type: KType): KType {
     return type.arguments.single().type!!
 }
@@ -66,6 +71,14 @@ fun Seed.createSeedForType(paramType: KType, isList: Boolean): Seed {
         return ObjectListSeed(elementType, classInfoCache)
     }
     if (isList) throw JKidException("Object of the type $paramType expected, not an array")
+    if (isSubtypeOfMap(paramType)) {
+        println("It's a map!")
+        val elementType = paramType.arguments[1].type!!
+        if (elementType.isPrimitiveOrString()) {
+            return ValueMapSeed(elementType, classInfoCache)
+        }
+        return ObjectMapSeed(elementType, classInfoCache)
+    }
     return ObjectSeed(paramClass, classInfoCache)
 }
 
@@ -102,7 +115,7 @@ class ObjectSeed<out T: Any>(
 
 class ObjectListSeed(
     val elementType: KType,
-        override val classInfoCache: ClassInfoCache
+    override val classInfoCache: ClassInfoCache
 ) : Seed {
     private val elements = mutableListOf<Seed>()
 
@@ -114,6 +127,28 @@ class ObjectListSeed(
             createSeedForType(elementType, isList).apply { elements.add(this) }
 
     override fun spawn(): List<*> = elements.map { it.spawn() }
+}
+
+class ObjectMapSeed(
+    private val elementType: KType,
+    override val classInfoCache: ClassInfoCache
+): Seed {
+    private val internalMap = mutableMapOf<String, Seed>()
+
+    override fun spawn(): Map<*,*> =
+        internalMap.entries.associate { entry ->
+            entry.key to entry.value.spawn()
+        }
+
+    override fun createCompositeProperty(propertyName: String, isList: Boolean) =
+        createSeedForType(elementType, isList).apply {
+            internalMap[propertyName] = this
+        }
+
+    override fun setSimpleProperty(propertyName: String, value: Any?) {
+        throw JKidException("Found primitive value in map of object types")
+    }
+
 }
 
 class ValueListSeed(
@@ -129,6 +164,24 @@ class ValueListSeed(
 
     override fun createCompositeProperty(propertyName: String, isList: Boolean): Seed {
         throw JKidException("Found object value in collection of primitive types")
+    }
+
+    override fun spawn() = elements
+}
+
+class ValueMapSeed(
+    elementType: KType,
+    override val classInfoCache: ClassInfoCache
+) : Seed {
+    private val elements = mutableMapOf<String, Any?>()
+    private val serializerForType = serializerForBasicType(elementType)
+
+    override fun setSimpleProperty(propertyName: String, value: Any?) {
+        elements[propertyName] = serializerForType.fromJsonValue(value)
+    }
+
+    override fun createCompositeProperty(propertyName: String, isList: Boolean): Seed {
+        throw JKidException("Found object value in map of primitive types")
     }
 
     override fun spawn() = elements
